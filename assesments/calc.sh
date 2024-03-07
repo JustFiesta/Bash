@@ -3,6 +3,7 @@
 
 # variables and config
 operation=""
+nums=()
 d_flag=0
 
 # script - start
@@ -25,6 +26,7 @@ while getopts "o:n:d" option; do
                     ;;
                 \?)
                     echo "Invalid operation! Choose from these (+, -, *, %)"
+                    exit 1
                     ;;
             esac
             ;;
@@ -38,37 +40,46 @@ while getopts "o:n:d" option; do
             done
             ;;
         d)
-           d_flag=1
+            d_flag=1
             ;;
         \?) 
             echo "Invalid option: -$OPTARG"
             ;;
+        :)
+            echo "Option -$OPTARG requires an argument."
+            exit 1
+            ;;
     esac
 done
 
-shift $(( OPTIND-1 ))
-
-echo "The whole list of values is '${nums[@]}'"
-
-echo "given nums: "
-for i in "${nums[@]}"; do
-    echo -n " ${i}"
-done 
-
-if [ ! $d_flag -eq 1 ]; then
-    case $operation in
-        +)
-            
-            ;;
-        -) 
-
-            ;;
-        \*)
-
-            ;;
-        \%)
-
-            ;;
-    esac
+shift $((OPTIND - 1))
 
 fi    
+
+if [ -n "$operation" ] && [ ${#nums[@]} -gt 1 ]; then
+    result=${nums[0]}
+    for ((i = 1; i < ${#nums[@]}; i++)); do
+        case $operation in
+            +) 
+                result=$((result + ${nums[$i]}))
+                ;;
+            -) 
+                result=$((result - ${nums[$i]}))
+                ;;
+            *) 
+                echo "Invalid operation"
+                exit 1
+                ;;
+            %) 
+                result=$((result % ${nums[$i]}))
+                ;;
+        esac
+    done
+    echo "Result of $operation operation on given numbers: $result"
+elif [ ${#nums[@]} -eq 0 ]; then
+    echo "No numbers provided for calculation."
+else
+    echo "Invalid input for calculation."
+fi
+
+#script - end
