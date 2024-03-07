@@ -1,4 +1,4 @@
-# Excercises in Bash made from my head
+# Excercises in Bash
 
 This repository contains (not only) my ideas for test programs in Bash. Did them for fun in meantime of learning other stuff, like networking, Linux, etc.
 
