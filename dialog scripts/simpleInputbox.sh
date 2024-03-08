@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # demo if inpux box funcionality
 
 # global variables / default values

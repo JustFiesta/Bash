@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # simple script for intercepting sertain signals
 
 # script - start

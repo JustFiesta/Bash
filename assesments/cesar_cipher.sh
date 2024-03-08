@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # text encryption in cesar cipher
 
 # ===========================

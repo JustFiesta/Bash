@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Sprawdzenie, czy podano nazwę pliku z domenami jako argument
 if [ $# -eq 0 ]; then

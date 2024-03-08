@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # overriding the exit and execute custom function
 # this script copies provided file to "newfile.txt"
 

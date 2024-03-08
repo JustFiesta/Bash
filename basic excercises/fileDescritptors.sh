@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # demo of file descriptors read and write
 
 # global variables / configuration

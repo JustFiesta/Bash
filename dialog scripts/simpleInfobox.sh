@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # infobox (dialog script) demo
 
 # global variables

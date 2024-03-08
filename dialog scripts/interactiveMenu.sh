@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # interactive demo for dialog command
 
 # global variables / default variables

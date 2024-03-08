@@ -1,3 +1,4 @@
+#!/usr/env bash
 #Goal is to create script for cron jobs
 
 ps aux | awk 'END {print "Liczba uruchomionych procesów: " NR-1}'  # aux - show all processes (BSD syntax), trunkated to awk - with prints at end of ps number of processes (- first column)

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # script for creatning very simple listing of all scripts in current directory
 
 # global variables / configuration

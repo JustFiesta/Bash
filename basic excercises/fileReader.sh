@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/env bash
 # simple file reading script
 
 # script - start

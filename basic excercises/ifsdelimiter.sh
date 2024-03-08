@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Reading files with custom delimeters 
 
 # global variables / configuration

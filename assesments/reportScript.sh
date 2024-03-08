@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Generate basic information about system, network and current user
 
 echo "======================="
