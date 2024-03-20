@@ -20,7 +20,7 @@ encode () {
     echo "encoding for $1 $2 $3"
 
     #ROT-13
-    cat $2 | tr "[A-Za-z]" "[N-ZA-Mn-za-m]"  > $3
+    tr "[A-Za-z]" "[N-ZA-Mn-za-m]" < $2 > $3
     
     #cat "$2" | tr "A-Za-z" "$(echo A-Za-z | tr "A-Za-z" "$(echo {A-Za-z} | sed "s/.*\n//")")"  > $3
     #cat "$2" | tr "A-Za-z" "$(echo A-Za-z | tr "A-Za-z" "$(echo {A-Za-z} | cut -b "$1"-26)$(echo {A-Za-z} | cut -b 1-"$(($1-1))")" > $3
