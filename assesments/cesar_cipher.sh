@@ -21,6 +21,11 @@ encode () {
 
     #ROT-13
     tr "[A-Za-z]" "[N-ZA-Mn-za-m]" < $2 > $3
+        
+    #cat "$2" | tr "A-Za-z" "$(echo A-Za-z | tr "A-Za-z" "$(echo {A-Za-z} | sed "s/.*\n//")")"  > $3
+    #cat "$2" | tr "A-Za-z" "$(echo A-Za-z | tr "A-Za-z" "$(echo {A-Za-z} | cut -b "$1"-26)$(echo {A-Za-z} | cut -b 1-"$(($1-1))")" > $3
+    
+    #cat $2 | tr "[A-Za-z]" "$(printf %${shift}s | tr ' ' 'A-Za-z' | tr 'A-Za-z' 'A-Za-z')$(printf %${shift}s | tr ' ' '[a-z]' | tr 'a-z' 'a-z')"  > $3
 }
 
 # function declaration - stop
