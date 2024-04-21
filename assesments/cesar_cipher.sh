@@ -10,17 +10,17 @@
 input_file=""
 output_file=""
 
-# cesar shift
+# global variables
 declare -i shift=0
 
+alphabet=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
 
 # function declaration - start
 # function to encode characters in given file
 encode () {
-    echo "encoding for $1 $2 $3"
+    echo "encoding for shift: $1, input: $2, output: $3"
 
-    #ROT-13
-    tr "[A-Za-z]" "[N-ZA-Mn-za-m]" < $2 > $3
+    tr "${alphabet:0:26}" "${alphabet:${shift}:26}"
 }
 
 # function declaration - stop
