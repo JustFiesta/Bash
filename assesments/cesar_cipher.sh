@@ -18,8 +18,6 @@ alphabet=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrs
 # function declaration - start
 # function to encode characters in given file
 encode () {
-    echo "encoding for shift: $1, input: $2, output: $3"
-
     tr "${alphabet:0:26}" "${alphabet:${shift}:26}"
 }
 
