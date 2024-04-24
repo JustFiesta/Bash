@@ -20,8 +20,7 @@ uppercase_alphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ"
 # function declaration - start
 # function to encode characters in given file
 encode () {
-    tr "${lowercase_alphabet:0:26}" "${lowercase_alphabet:${shift}:26}" < $1 > $2
-    tr "${uppercase_alphabet:0:26}" "${uppercase_alphabet:${shift}:26}" < $2 > $2.tmp && mv $2.tmp $2
+    tr "${lowercase_alphabet:0:26}" "${lowercase_alphabet:${shift}:26}" < $1 | tr "${uppercase_alphabet:0:26}" "${uppercase_alphabet:${shift}:26}" > $2
 }
 
 # function declaration - stop
