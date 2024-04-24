@@ -20,7 +20,7 @@ uppercase_alphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ"
 # function declaration - start
 # function to encode characters in given file
 encode () {
-    tr "${lowercase_alphabet:0:26}" "${lowercase_alphabet:${shift}:26}" < "$1" | tr "${uppercase_alphabet:0:26}" "${uppercase_alphabet:${shift}:26}" > $2
+    tr "${lowercase_alphabet:0:26}" "${lowercase_alphabet:${shift}:26}" < "$1" | tr "${uppercase_alphabet:0:26}" "${uppercase_alphabet:${shift}:26}" > "$2"
 }
 
 # function declaration - stop
@@ -34,19 +34,9 @@ while getopts ":s:i:o:h" opt; do
             ;;
         i)
             input_file="$OPTARG"
-            # get all option arguments and treat it like single string/filename
-            while [[ ${!OPTIND} && ${!OPTIND} != -* ]]; do
-                input_file+=" ${!OPTIND}"
-                ((OPTIND++))
-            done
             ;;
         o)
             output_file="$OPTARG"
-            # get all option arguments and treat it like single string/filename
-            while [[ ${!OPTIND} && ${!OPTIND} != -* ]]; do
-                output_file+=" ${!OPTIND}"
-                ((OPTIND++))
-            done
             ;;
         h)
             echo "Usage: -s <shift> -i <input file> -o <output file>"
