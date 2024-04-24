@@ -34,8 +34,8 @@ while getopts "o:n:dh" option; do
         n)
             set -f # disable glob
             IFS=" " # split by space
-            nums+=("$OPTARG")
-            while [[ ${!OPTIND} && ${!OPTIND} != -* ]]; do
+            nums+=("$OPTARG") # add first argument to array
+            while [[ ${!OPTIND} ]]; do
 			    nums+=( "${!OPTIND}" )
 			    ((OPTIND++))
             done
@@ -82,7 +82,7 @@ if [ "$d_flag" -eq 1 ]; then
     echo "User: $USER"
     echo "Script: $0"
     echo "Operation: $operation"
-    echo "Numbers: ${nums[@]}"
+    echo "Numbers: ${nums[*]}"
 fi
 
 # check if numbers were provided
@@ -97,16 +97,16 @@ if [ -n "$operation" ]; then
     for ((i = 1; i < ${#nums[@]}; i++)); do
         case $operation in
             "+") 
-                result=$((result + ${nums[$i]}))
+                result=$( echo "$result+${nums[$i]}" | bc )
                 ;;
             "-") 
-                result=$((result - ${nums[$i]}))
+                result=$( echo "$result-${nums[$i]}" | bc )
                 ;;
             "*") 
-                result=$((result * ${nums[$i]}))
+                result=$( echo "$result*${nums[$i]}" | bc )
                 ;;
             "%") 
-                result=$((result % ${nums[$i]}))
+                result=$( echo "$result%${nums[$i]}" | bc )
                 ;;
         esac
     done
