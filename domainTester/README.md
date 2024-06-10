@@ -2,17 +2,17 @@
 
 Small domain tester.
 
-It uses nslookup for fetching on fly information about given domains (in file).
+It uses whois and nslookup for fetching on fly information about given domains (in file).
 
 ## Documentation
 
-It is a simple while loop, stripping down each line in file and performing netstat queries on each.
+It is a simple while loop with even simpler CLI, stripping down each line in file and performing whois queries on each.
 
-* only supports ONE argument - as one domain OR multiple domains contained in single file (support for *.txt and *.csv files.)
+* only supports ONE argument - as contained in single file (support for *.txt and *.csv files.)
 * accepts domains in format: www.domain.net, domain.net, IP
 
 ## How-to
 
 1. Download/copy file
 2. Add the excecute premissions with chmod +x (or in the numerical way)
-3. Use it in shell: ./testDomains.sh your_file_containing_domains.txt
+3. Use it in shell: ./testDomains.sh -i your_file_containing_domains.txt
