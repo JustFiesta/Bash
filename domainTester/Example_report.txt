@@ -1,0 +1,47 @@
+example.com - zajęta, IP: 93.184.215.14
+Informacje o właścicielu nie są dostępne.
+Wygasa: 2024-08-13T04:00:00Z
+-----------------------------------
+google.com - zajęta, IP: 216.58.215.78
+Data utworzenia: 1997-09-15T07:00:00+0000
+Właściciel: Google LLC
+Wygasa: 2028-09-14T04:00:00Z
+-----------------------------------
+facebook.com - zajęta, IP: 57.144.112.1
+Data utworzenia: 1997-03-29T05:00:00Z
+Właściciel: Meta Platforms, Inc.
+Wygasa: 2033-03-30T04:00:00Z
+-----------------------------------
+notarealdomain123456789.com - wolna
+-----------------------------------
+IP: 192.168.1.1, nie jest powiązane z żadną domeną.
+-----------------------------------
+IP: 8.8.8.8, jest powiązane z domeną.
+dns.google - zajęta, IP: 8.8.8.8
+Data utworzenia: 2018-04-16T22:57:01Z
+Właściciel: Charleston Road Registry, Inc.
+Wygasa: 2025-04-16T22:57:01Z
+-----------------------------------
+github.com - zajęta, IP: 140.82.121.3
+Data utworzenia: 2007-10-09T18:20:50+0000
+Właściciel: GitHub, Inc.
+Wygasa: 2024-10-09T18:20:50Z
+-----------------------------------
+microsoft.com - zajęta, IP: 20.112.250.133
+Data utworzenia: 1991-05-02T04:00:00+0000
+Właściciel: Microsoft Corporation
+Wygasa: 2025-05-03T04:00:00Z
+-----------------------------------
+IP: 255.255.255.255, nie jest powiązane z żadną domeną.
+-----------------------------------
+IP: 10.0.0.1, nie jest powiązane z żadną domeną.
+-----------------------------------
+wp.pl - zajęta, IP: 212.77.98.9
+Informacje o właścicielu nie są dostępne.
+Informacja o dacie wygaśnięcia domeny niedostępna.
+-----------------------------------
+amazon.com - zajęta, IP: 54.239.28.85
+Data utworzenia: 1994-11-01T05:00:00+0000
+Właściciel: Amazon Technologies, Inc.
+Wygasa: 2024-10-31T04:00:00Z
+-----------------------------------
