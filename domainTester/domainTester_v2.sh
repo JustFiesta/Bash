@@ -22,25 +22,27 @@ check_domain() {
     domain=$(echo "$domain" | tr -d '[:space:]' | sed "s/[${separator}]$//")
 
     # sleep to not exceed whois limit
-    sleep 0.5
+    sleep 0.2
 
     # Check wether domain is avalible or taken
     is_avalible=$(whois "$domain" | egrep "^No match|^NOT FOUND|^Not fo|AVAILABLE|^No Data Fou|has not been regi|No entri")
     if [ -n "$is_avalible" ]; then 
-        echo "$domain : dostępna" >> "$report"
+        echo "$domain : jest wolna" >> "$report"
 
     else 
         # Get domain address
         ip=$(nslookup "$domain" | awk '/^Address: / { if ($2 !~ /#/) { print $2; exit } }')
 
-        # Append name with IP
+        # Append name with IP to report file
         echo "IP $domain: $ip" >> "$report"
-
+        
         # sleep to not exceed whois limit
         sleep 0.5
 
+        domain_info=$(whois "$domain")
+
         # Get owner info
-        owner_info=$(whois "$domain" | awk '/^(Registrant|Registrant Organization|Registrant Organization|OrgName|Creation Date):/ { print $0 }')
+        owner_info=$(echo "$domain_info"  | awk '/^(Registrant|Registrant Organization|Registrant Organization|OrgName|Creation Date):/ { print $0 }')
 
         # Check if any owner information is publicly avalible
         if [ -z "$owner_info" ]; then
@@ -49,11 +51,8 @@ check_domain() {
             echo "$owner_info" >> "$report"
         fi
 
-        # sleep to not exceed whois limit
-        sleep 0.5
-
-        # Expire date
-        expiration_date=$(whois "$domain" | awk -F': ' '/(Registrar Registration Expiration Date|Expiry Date)/ { print $2; exit }' | awk '{$1=$1};1')
+        # Get expire date
+        expiration_date=$(echo "$domain_info" | awk -F': ' '/(Registrar Registration Expiration Date|Expiry Date)/ { print $2; exit }' | awk '{$1=$1};1')
 
         # Check if any expiration date information are publicly avalible
         if [ -n "$expiration_date" ]; then
@@ -150,4 +149,6 @@ while IFS=$separator read -r line || [[ -n "$line" ]]; do
         check_domain "$line" "$report_file_name"
     fi
 done < "$input_file"
+
+exit 0
 # Script - stop
