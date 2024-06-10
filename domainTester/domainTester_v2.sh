@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # -----------------
-# domainTester: Get quick information about domains
+# domainTester: Get quick information about domains from whois
 
 # Variables
 report_file_name="Raport_DNS_$(date +%Y-%m-%d_%H-%M-%S).txt"
@@ -18,14 +18,15 @@ check_domain() {
     local domain=$1
     local report=$2
 
-    # Remove whitespaces
+    # Remove whitespaces and split lines by given separator
     domain=$(echo "$domain" | tr -d '[:space:]' | sed "s/[${separator}]$//")
 
     # Get information about one domain
+    sleep 0.5
     domain_info=$(whois "$domain")
 
     # Check wether domain is avalible or taken
-    is_avalible=$(echo $domain_info | egrep "^No match|^NOT FOUND|^Not fo|AVAILABLE|^No Data Fou|has not been regi|No entri")
+    is_avalible=$(echo "$domain_info" | grep -E "^No match|^NOT FOUND|^Not fo|AVAILABLE|^No Data Fou|has not been regi|No entri")
     if [ -n "$is_avalible" ]; then 
         echo "$domain - wolna" >> "$report"
 
@@ -37,7 +38,7 @@ check_domain() {
         echo "$domain - zajęta, IP: $ip" >> "$report"
 
         # Get owner info
-        owner_info=$(echo "$domain_info"  | awk '/^(Registrant|Registrant Organization|Registrant Organization|OrgName|Creation Date):/ { print $0 }')
+        owner_info=$(echo "$domain_info" | awk '/^(Registrant|Registrant Organization|OrgName|Organization|Owner|Creation Date):/ { gsub(/^Creation Date:/, "Data utworzenia:"); gsub(/^(Registrant Organization|OrgName|Organization|Owner):/, "Właściciel:"); print $0 }')
 
         # Check if any owner information is publicly avalible
         if [ -z "$owner_info" ]; then
@@ -77,7 +78,7 @@ check_ip() {
         echo "IP: $ip, nie jest powiązane z żadną domeną." >> "$report"
         echo "-----------------------------------" >> "$report"
     else
-        echo "IP: $ip, jest powiązane z domeną: $domain." >> "$report"
+        echo "IP: $ip, jest powiązane z domeną." >> "$report"
         check_domain "$domain" "$report"
     fi
 }
