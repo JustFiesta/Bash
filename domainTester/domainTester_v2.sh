@@ -21,25 +21,20 @@ check_domain() {
     # Remove whitespaces
     domain=$(echo "$domain" | tr -d '[:space:]' | sed "s/[${separator}]$//")
 
-    # sleep to not exceed whois limit
-    sleep 0.2
+    # Get information about one domain
+    domain_info=$(whois "$domain")
 
     # Check wether domain is avalible or taken
-    is_avalible=$(whois "$domain" | egrep "^No match|^NOT FOUND|^Not fo|AVAILABLE|^No Data Fou|has not been regi|No entri")
+    is_avalible=$(echo $domain_info | egrep "^No match|^NOT FOUND|^Not fo|AVAILABLE|^No Data Fou|has not been regi|No entri")
     if [ -n "$is_avalible" ]; then 
-        echo "$domain : jest wolna" >> "$report"
+        echo "$domain - wolna" >> "$report"
 
     else 
         # Get domain address
         ip=$(nslookup "$domain" | awk '/^Address: / { if ($2 !~ /#/) { print $2; exit } }')
 
         # Append name with IP to report file
-        echo "IP $domain: $ip" >> "$report"
-        
-        # sleep to not exceed whois limit
-        sleep 0.5
-
-        domain_info=$(whois "$domain")
+        echo "$domain - zajęta, IP: $ip" >> "$report"
 
         # Get owner info
         owner_info=$(echo "$domain_info"  | awk '/^(Registrant|Registrant Organization|Registrant Organization|OrgName|Creation Date):/ { print $0 }')
@@ -48,16 +43,18 @@ check_domain() {
         if [ -z "$owner_info" ]; then
             echo "Informacje o właścicielu nie są dostępne." >> "$report"
         else
+            # Append organisation (owner) information
             echo "$owner_info" >> "$report"
         fi
 
-        # Get expire date
+        # Get expiration date
         expiration_date=$(echo "$domain_info" | awk -F': ' '/(Registrar Registration Expiration Date|Expiry Date)/ { print $2; exit }' | awk '{$1=$1};1')
 
         # Check if any expiration date information are publicly avalible
         if [ -n "$expiration_date" ]; then
             echo "Wygasa: $expiration_date" >> "$report"
         else
+            # Append expiration date information
             echo "Informacja o dacie wygaśnięcia domeny niedostępna." >> "$report"
         fi
     fi 
