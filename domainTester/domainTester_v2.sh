@@ -15,14 +15,14 @@ usage() {
 
 # Check domain name
 check_domain() {
-    # sleep to not exceed whois limit
-    sleep 2
-
     local domain=$1
     local report=$2
 
     # Remove whitespaces
     domain=$(echo "$domain" | tr -d '[:space:]' | sed "s/[${separator}]$//")
+
+    # sleep to not exceed whois limit
+    sleep 0.5
 
     # Check wether domain is avalible or taken
     is_avalible=$(whois "$domain" | egrep "^No match|^NOT FOUND|^Not fo|AVAILABLE|^No Data Fou|has not been regi|No entri")
@@ -36,6 +36,9 @@ check_domain() {
         # Append name with IP
         echo "IP $domain: $ip" >> "$report"
 
+        # sleep to not exceed whois limit
+        sleep 0.5
+
         # Get owner info
         owner_info=$(whois "$domain" | awk '/^(Registrant|Registrant Organization|Registrant Organization|OrgName|Creation Date):/ { print $0 }')
 
@@ -45,6 +48,9 @@ check_domain() {
         else
             echo "$owner_info" >> "$report"
         fi
+
+        # sleep to not exceed whois limit
+        sleep 0.5
 
         # Expire date
         expiration_date=$(whois "$domain" | awk -F': ' '/(Registrar Registration Expiration Date|Expiry Date)/ { print $2; exit }' | awk '{$1=$1};1')
