@@ -8,8 +8,8 @@ It uses nslookup for fetching on fly information about given domains (in file).
 
 It is a simple while loop, stripping down each line in file and performing netstat queries on each.
 
-* only supports ONE argument - as one domain OR multiple domains contained in single file
-* accepts domains in format: www.domain.net, domain.net
+* only supports ONE argument - as one domain OR multiple domains contained in single file (support for *.txt and *.csv files.)
+* accepts domains in format: www.domain.net, domain.net, IP
 
 ## How-to
 
