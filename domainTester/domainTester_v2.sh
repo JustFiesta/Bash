@@ -10,8 +10,22 @@ separator=""
 # Help/usage function
 usage() {
     echo "Użycie: $0 -i <nazwa_pliku>"
+    echo
+    echo "Parametry:"
+    echo "  -i <nazwa_pliku>   Ścieżka do pliku wejściowego zawierającego nazwy domen lub adresy IP."
+    echo
+    echo "Przykładowy plik wejściowy (domains.txt):"
+    echo "  example.com"
+    echo "  192.0.2.1"
+    echo "  example.net"
+    echo
+    echo "Wspierane separatory nowej linii:"
+    echo "  Nowa linia (\n)"
+    echo "  Przecinek (,)"
+    echo "  Średnik (;)"
     exit 1
 }
+
 
 # Check domain name
 check_domain() {
@@ -85,10 +99,13 @@ check_ip() {
 
 
 # CLI with getopts
-while getopts ":i:" opt; do
+while getopts ":i:h" opt; do
     case ${opt} in
         i )
             input_file=$OPTARG
+            ;;
+        h) 
+            usage
             ;;
         \? )
             echo "Nieznana opcja: -$OPTARG" 1>&2
