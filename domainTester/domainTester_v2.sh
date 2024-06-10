@@ -23,7 +23,6 @@ usage() {
     echo "  Nowa linia (\n)"
     echo "  Przecinek (,)"
     echo "  Średnik (;)"
-    exit 1
 }
 
 
@@ -106,14 +105,17 @@ while getopts ":i:h" opt; do
             ;;
         h) 
             usage
+            exit 0
             ;;
         \? )
             echo "Nieznana opcja: -$OPTARG" 1>&2
             usage
+            exit 1
             ;;
         : )
             echo "Brak argumentu dla: -$OPTARG" 1>&2
             usage
+            exit 1
             ;;
     esac
 done
