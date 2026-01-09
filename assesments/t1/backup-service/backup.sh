@@ -416,8 +416,8 @@ main(){
         load_default_config
     fi
 
-    # Setup trap to cleanup on exit
-    trap 'kill_instance' EXIT INT TERM
+    # Setup trap to cleanup on interrupt/termination
+    trap 'unlock_instance; exit 1' INT TERM
 
     # Create backup
     local backup_file
