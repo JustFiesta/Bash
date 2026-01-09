@@ -46,9 +46,50 @@ EOF
     exit 0
 }
 
+
 create_backup(){
-    # TODO: implement backup creation logic
-    true
+    local timestamp
+    timestamp=$(date '+%Y%m%d_%H%M%S')
+    local backup_filename="backup_${timestamp}.tar.gz"
+    local temp_backup="/tmp/${backup_filename}"
+
+    log_message "INFO" "Starting backup creation"
+    log_message "DEBUG" "Source directory: $SOURCE_DIR"
+    log_message "DEBUG" "Temporary backup file: $temp_backup"
+
+    if [[ ! -d "$SOURCE_DIR" ]]; then
+        log_message "ERROR" "Source directory does not exist: $SOURCE_DIR"
+        return 1
+    fi
+
+    if [[ ! -r "$SOURCE_DIR" ]]; then
+        log_message "ERROR" "Source directory is not readable: $SOURCE_DIR"
+        return 1
+    fi
+
+    log_message "INFO" "Creating compressed archive: $backup_filename"
+
+    tar -czf "$temp_backup" -C "$(dirname "$SOURCE_DIR")" "$(basename "$SOURCE_DIR")" 2>&1 | while IFS= read -r line; do
+        log_message "DEBUG" "tar: $line"
+    done
+
+    if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
+        log_message "ERROR" "Failed to create backup archive"
+        rm -f "$temp_backup"
+        return 1
+    fi
+
+    if [[ ! -f "$temp_backup" ]]; then
+        log_message "ERROR" "Backup file was not created: $temp_backup"
+        return 1
+    fi
+
+    local backup_size
+    backup_size=$(du -h "$temp_backup" | cut -f1)
+    log_message "INFO" "Backup created successfully: $backup_filename (size: $backup_size)"
+
+    echo "$temp_backup"
+    return 0
 }
 
 move_backup_to_destination(){
