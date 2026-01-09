@@ -22,9 +22,28 @@ VERBOSITY_LEVEL=1  # 0 = errors only, 1 = info, 2 = debug
 
 # functions
 usage() {
-    # TODO: implement usage function
-    echo "Usage: $0"
-    exit 1
+    cat << EOF
+Usage: $0 [OPTIONS]
+
+Backup service - creates compressed archives and manages retention.
+
+OPTIONS:
+    -c CONFIG_FILE    Path to configuration file (default: /etc/backup.conf)
+    -v LEVEL          Verbosity level: 0=errors only, 1=info, 2=debug (default: 1)
+    -h                Show this help message
+
+EXAMPLE:
+    $0 -c /path/to/backup.conf -v 2
+
+CONFIG FILE FORMAT:
+    SOURCE_DIR=/path/to/source
+    DEST_DIR=/path/to/destination
+    RETENTION_DAYS=7
+    LOG_FILE=/var/log/backup.log
+    EMAIL_TO_ALERT=admin@example.com
+
+EOF
+    exit 0
 }
 
 create_backup(){
