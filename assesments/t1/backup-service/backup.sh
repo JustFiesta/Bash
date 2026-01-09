@@ -11,7 +11,7 @@
 # - Only one instance runs at a time (using lock file)
 
 # vars
-CONFIG_FILE="/etc/backup.conf"
+CONFIG_FILE="/etc/backup-tool/backup.conf"
 LOG_FILE=""
 SOURCE_DIR=""
 DEST_DIR=""
@@ -46,6 +46,32 @@ EOF
     exit 0
 }
 
+check_dependencies() {
+    local missing_deps=()
+
+    # Check required commands
+    local required_commands=("tar" "date" "find" "basename" "dirname" "du" "mkdir" "mv" "rm")
+
+    for cmd in "${required_commands[@]}"; do
+        if ! command -v "$cmd" &>/dev/null; then
+            missing_deps+=("$cmd")
+        fi
+    done
+
+    if [[ ${#missing_deps[@]} -gt 0 ]]; then
+        log_message "ERROR" "Missing required commands: ${missing_deps[*]}"
+        return 1
+    fi
+
+    # Check if mail is available for email notifications
+    if [[ -n "$EMAIL_TO_ALERT" ]] && ! command -v mail &>/dev/null; then
+        log_message "ERROR" "Email notifications requested but 'mail' command not found. Install mailutils package."
+        return 1
+    fi
+
+    log_message "DEBUG" "All dependencies satisfied"
+    return 0
+}
 
 create_backup(){
     local timestamp
@@ -264,7 +290,7 @@ load_default_config(){
     SOURCE_DIR="${SOURCE_DIR:-/var/data}"
     DEST_DIR="${DEST_DIR:-/var/backups}"
     RETENTION_DAYS="${RETENTION_DAYS:-7}"
-    LOG_FILE="${LOG_FILE:-/var/log/backup.log}"
+    LOG_FILE="${LOG_FILE:-/var/log/backup-tool/backup.log}"
     EMAIL_TO_ALERT="${EMAIL_TO_ALERT:-}"
 
     log_message "DEBUG" "Default config: SOURCE_DIR=$SOURCE_DIR, DEST_DIR=$DEST_DIR, RETENTION_DAYS=$RETENTION_DAYS"
@@ -351,6 +377,12 @@ main(){
     done
 
     log_message "INFO" "Backup service starting"
+
+    # Check if all required dependencies are available
+    if ! check_dependencies; then
+        log_message "ERROR" "Dependency check failed"
+        exit 1
+    fi
 
     # Try to load config, fallback to defaults if needed
     if ! try_to_load_config "$CONFIG_FILE"; then
