@@ -161,18 +161,49 @@ send_mail_alert() {
 }
 
 lock_instance(){
-    # TODO: implement instance locking logic
-    true
+    local lock_file="/var/lock/backup.lock"
+
+    log_message "DEBUG" "Attempting to acquire lock: $lock_file"
+
+    if [[ -f "$lock_file" ]]; then
+        local pid
+        pid=$(cat "$lock_file" 2>/dev/null)
+
+        if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
+            log_message "ERROR" "Another instance is already running (PID: $pid)"
+            return 1
+        else
+            log_message "INFO" "Stale lock file found, removing"
+            rm -f "$lock_file"
+        fi
+    fi
+
+    echo $$ > "$lock_file" || {
+        log_message "ERROR" "Failed to create lock file: $lock_file"
+        return 1
+    }
+
+    log_message "INFO" "Lock acquired (PID: $$)"
+    return 0
 }
 
 unlock_instance(){
-    # TODO: implement instance unlocking logic
-    true
+    local lock_file="/var/lock/backup.lock"
+
+    log_message "DEBUG" "Releasing lock: $lock_file"
+
+    if [[ -f "$lock_file" ]]; then
+        rm -f "$lock_file"
+        log_message "INFO" "Lock released"
+    fi
+
+    return 0
 }
 
 kill_instance(){
-    # TODO: implement instance exiting script/killing logic
-    true
+    log_message "INFO" "Backup process terminated"
+    unlock_instance
+    exit "${1:-1}"
 }
 
 # runtime
