@@ -84,7 +84,7 @@ LOG_FILE=/var/log/backup-tool/backup.log
 EMAIL_TO_ALERT=""
 
 # Lock file path
-LOCK_FILE="/var/run/backup-tool.lock"
+LOCK_FILE=/var/run/backup-tool.lock
 EOF
 
 echo -e "${GREEN} Config created: $CONFIG_DIR/backup.conf${NC}"
