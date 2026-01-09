@@ -92,9 +92,47 @@ create_backup(){
     return 0
 }
 
+
 move_backup_to_destination(){
-    # TODO: implement backup moving logic
-    true
+    local backup_file="$1"
+
+    if [[ -z "$backup_file" ]]; then
+        log_message "ERROR" "No backup file specified for moving"
+        return 1
+    fi
+
+    if [[ ! -f "$backup_file" ]]; then
+        log_message "ERROR" "Backup file does not exist: $backup_file"
+        return 1
+    fi
+
+    log_message "INFO" "Moving backup to destination: $DEST_DIR"
+    log_message "DEBUG" "Source: $backup_file"
+
+    if [[ ! -d "$DEST_DIR" ]]; then
+        log_message "INFO" "Destination directory does not exist, creating: $DEST_DIR"
+        mkdir -p "$DEST_DIR" || {
+            log_message "ERROR" "Failed to create destination directory: $DEST_DIR"
+            return 1
+        }
+    fi
+
+    if [[ ! -w "$DEST_DIR" ]]; then
+        log_message "ERROR" "Destination directory is not writable: $DEST_DIR"
+        return 1
+    fi
+
+    local filename
+    filename=$(basename "$backup_file")
+    local destination="$DEST_DIR/$filename"
+
+    mv "$backup_file" "$destination" || {
+        log_message "ERROR" "Failed to move backup to destination"
+        return 1
+    }
+
+    log_message "INFO" "Backup moved successfully to: $destination"
+    return 0
 }
 
 remove_backups_older_than(){
