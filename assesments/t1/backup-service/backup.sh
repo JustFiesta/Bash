@@ -64,7 +64,29 @@ remove_backups_older_than(){
 log_message() {
     local level="$1"
     local message="$2"
-    echo "$(date '+%Y-%m-%d %H:%M:%S') [$level] $message" >> "$LOG_FILE"
+    local log_line="$(date '+%Y-%m-%d %H:%M:%S') [$level] $message"
+
+    # Map log levels to verbosity requirements
+    # ERROR: always logged (verbosity >= 0)
+    # INFO: logged when verbosity >= 1
+    # DEBUG: logged when verbosity >= 2
+    local required_verbosity=0
+    case "$level" in
+        ERROR) required_verbosity=0 ;;
+        INFO)  required_verbosity=1 ;;
+        DEBUG) required_verbosity=2 ;;
+        *) required_verbosity=1 ;;
+    esac
+
+    # Only log if current verbosity level is sufficient
+    if [[ $VERBOSITY_LEVEL -ge $required_verbosity ]]; then
+        # Check if LOG_FILE is set, otherwise log to stderr
+        if [[ -n "$LOG_FILE" ]]; then
+            echo "$log_line" >> "$LOG_FILE"
+        else
+            echo "$log_line" >&2
+        fi
+    fi
 }
 
 set_verbosity() {
@@ -73,8 +95,48 @@ set_verbosity() {
 }
 
 try_to_load_config(){
-    # TODO: implement config loading logic
-    true
+    local config_file="$1"
+
+    log_message "DEBUG" "Attempting to load config file: $config_file"
+
+    if [[ ! -f "$config_file" ]]; then
+        log_message "ERROR" "Config file not found: $config_file"
+        return 1
+    fi
+
+    if [[ ! -r "$config_file" ]]; then
+        log_message "ERROR" "Config file not readable: $config_file"
+        return 1
+    fi
+
+    # Load config file safely
+    # shellcheck disable=SC1090
+    source "$config_file" || {
+        log_message "ERROR" "Failed to source config file: $config_file"
+        return 1
+    }
+
+    log_message "DEBUG" "Config file sourced successfully"
+
+    # Validate required variables
+    local required_vars=("SOURCE_DIR" "DEST_DIR" "RETENTION_DAYS" "LOG_FILE")
+    local missing_vars=()
+
+    for var in "${required_vars[@]}"; do
+        if [[ -z "${!var}" ]]; then
+            missing_vars+=("$var")
+        fi
+    done
+
+    if [[ ${#missing_vars[@]} -gt 0 ]]; then
+        log_message "ERROR" "Missing required variables in config: ${missing_vars[*]}"
+        return 1
+    fi
+
+    log_message "INFO" "Config loaded successfully from: $config_file"
+    log_message "DEBUG" "SOURCE_DIR=$SOURCE_DIR, DEST_DIR=$DEST_DIR, RETENTION_DAYS=$RETENTION_DAYS"
+
+    return 0
 }
 
 load_default_config(){
