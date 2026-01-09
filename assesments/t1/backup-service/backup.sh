@@ -17,6 +17,7 @@ SOURCE_DIR=""
 DEST_DIR=""
 RETENTION_DAYS=""
 EMAIL_TO_ALERT=""
+LOCK_FILE="/var/run/backup-tool.lock"
 
 VERBOSITY_LEVEL=1  # 0 = errors only, 1 = info, 2 = debug
 
@@ -307,25 +308,23 @@ send_mail_alert() {
 }
 
 lock_instance(){
-    local lock_file="/var/lock/backup.lock"
+    log_message "DEBUG" "Attempting to acquire lock: $LOCK_FILE"
 
-    log_message "DEBUG" "Attempting to acquire lock: $lock_file"
-
-    if [[ -f "$lock_file" ]]; then
+    if [[ -f "$LOCK_FILE" ]]; then
         local pid
-        pid=$(cat "$lock_file" 2>/dev/null)
+        pid=$(cat "$LOCK_FILE" 2>/dev/null)
 
         if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
             log_message "ERROR" "Another instance is already running (PID: $pid)"
             return 1
         else
             log_message "INFO" "Stale lock file found, removing"
-            rm -f "$lock_file"
+            rm -f "$LOCK_FILE"
         fi
     fi
 
-    echo $$ > "$lock_file" || {
-        log_message "ERROR" "Failed to create lock file: $lock_file"
+    echo $$ > "$LOCK_FILE" || {
+        log_message "ERROR" "Failed to create lock file: $LOCK_FILE"
         return 1
     }
 
@@ -334,12 +333,10 @@ lock_instance(){
 }
 
 unlock_instance(){
-    local lock_file="/var/lock/backup.lock"
+    log_message "DEBUG" "Releasing lock: $LOCK_FILE"
 
-    log_message "DEBUG" "Releasing lock: $lock_file"
-
-    if [[ -f "$lock_file" ]]; then
-        rm -f "$lock_file"
+    if [[ -f "$LOCK_FILE" ]]; then
+        rm -f "$LOCK_FILE"
         log_message "INFO" "Lock released"
     fi
 
