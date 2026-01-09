@@ -1,4 +1,4 @@
-#!/usr/share/env bash
+#!/usr/bin/env bash
 # -------------------
 # Tool used to create and manage compressed archives of given directory, can be configured as service
 # -------------------
