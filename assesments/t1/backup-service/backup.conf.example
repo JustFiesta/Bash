@@ -2,23 +2,23 @@
 # Copy to: /etc/backup-tool/backup.conf
 
 # Source directory to backup (REQUIRED - change this!)
-SOURCE_DIR=/var/www/html
+SOURCE_DIR="/var/www/html"
 
 # Destination directory for backups (REQUIRED)
-DEST_DIR=/var/backup-tool/archives
+DEST_DIR="/var/backup-tool/archives"
 
 # Number of days to retain backups (REQUIRED)
 # Old backups will be automatically deleted
 RETENTION_DAYS=7
 
 # Log file path (REQUIRED)
-LOG_FILE=/var/log/backup-tool/backup.log
+LOG_FILE="/var/log/backup-tool/backup.log"
 
 # Email address for notifications (OPTIONAL)
 # Leave empty to disable email notifications
 # Requires 'mail' command (install: apt install mailutils)
-EMAIL_TO_ALERT=admin@example.com
+EMAIL_TO_ALERT="admin@example.com"
 
 # Lock file path (OPTIONAL)
 # Prevents multiple instances from running simultaneously
-LOCK_FILE=/var/run/backup-tool.lock
+LOCK_FILE="/var/run/backup-tool.lock"

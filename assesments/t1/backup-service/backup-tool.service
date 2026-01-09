@@ -1,25 +1,14 @@
 [Unit]
 Description=Backup Tool Service
 Documentation=man:backup-tool(1)
-After=network.target
 
 [Service]
 Type=oneshot
 ExecStart=/usr/local/bin/backup-tool.sh -c /etc/backup-tool/backup.conf
 User=root
 Group=root
-
-# Logging
 StandardOutput=journal
 StandardError=journal
-SyslogIdentifier=backup-tool
-
-# Security hardening
-PrivateTmp=true
-NoNewPrivileges=true
-ProtectSystem=strict
-ProtectHome=true
-ReadWritePaths=/var/backup-tool /var/log/backup-tool /var/run
 
 [Install]
 WantedBy=multi-user.target
