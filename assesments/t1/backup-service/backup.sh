@@ -135,9 +135,49 @@ move_backup_to_destination(){
     return 0
 }
 
+
 remove_backups_older_than(){
-    # TODO: implement old backup removal logic
-    true
+    local retention_days="$1"
+
+    if [[ -z "$retention_days" ]]; then
+        log_message "ERROR" "No retention days specified"
+        return 1
+    fi
+
+    if ! [[ "$retention_days" =~ ^[0-9]+$ ]]; then
+        log_message "ERROR" "Invalid retention days value: $retention_days"
+        return 1
+    fi
+
+    log_message "INFO" "Removing backups older than $retention_days days from: $DEST_DIR"
+
+    if [[ ! -d "$DEST_DIR" ]]; then
+        log_message "INFO" "Destination directory does not exist, nothing to remove"
+        return 0
+    fi
+
+    local removed_count=0
+    while IFS= read -r -d '' file; do
+        local filename
+        filename=$(basename "$file")
+        log_message "DEBUG" "Removing old backup: $filename"
+
+        rm -f "$file" || {
+            log_message "ERROR" "Failed to remove backup: $filename"
+            continue
+        }
+
+        ((removed_count++))
+        log_message "INFO" "Removed old backup: $filename"
+    done < <(find "$DEST_DIR" -name "backup_*.tar.gz" -type f -mtime "+$retention_days" -print0)
+
+    if [[ $removed_count -eq 0 ]]; then
+        log_message "INFO" "No old backups found to remove"
+    else
+        log_message "INFO" "Removed $removed_count old backup(s)"
+    fi
+
+    return 0
 }
 
 log_message() {
