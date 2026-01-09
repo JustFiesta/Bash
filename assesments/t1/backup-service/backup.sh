@@ -49,6 +49,7 @@ EOF
 }
 
 check_dependencies() {
+    log_message "INFO" "Checking dependencies..."
     local missing_deps=()
 
     # Check required commands
@@ -65,13 +66,15 @@ check_dependencies() {
         return 1
     fi
 
+    log_message "INFO" "Required commands check passed"
+
     # Check if mail is available for email notifications
     if [[ -n "$EMAIL_TO_ALERT" ]] && ! command -v mail &>/dev/null; then
         log_message "ERROR" "Email notifications requested but 'mail' command not found. Install mailutils package."
         return 1
     fi
 
-    log_message "DEBUG" "All dependencies satisfied"
+    log_message "INFO" "All dependencies satisfied"
     return 0
 }
 
@@ -255,14 +258,17 @@ try_to_load_config(){
         return 1
     fi
 
+    log_message "INFO" "About to source config file..."
+
     # Load config file safely
     # shellcheck disable=SC1090
-    source "$config_file" || {
-        log_message "ERROR" "Failed to source config file: $config_file"
+    if ! source "$config_file"; then
+        local exit_code=$?
+        log_message "ERROR" "Failed to source config file: $config_file (exit code: $exit_code)"
         return 1
-    }
+    fi
 
-    log_message "DEBUG" "Config file sourced successfully"
+    log_message "INFO" "Config file sourced successfully"
 
     # Validate required variables
     local required_vars=("SOURCE_DIR" "DEST_DIR" "RETENTION_DAYS" "LOG_FILE")
@@ -391,9 +397,16 @@ main(){
 
     log_message "INFO" "Backup service starting"
 
+    # Acquire lock FIRST to ensure single instance (before any slow operations)
+    if ! lock_instance; then
+        log_message "ERROR" "Failed to acquire lock, another instance may be running"
+        exit 1
+    fi
+
     # Check if all required dependencies are available
     if ! check_dependencies; then
         log_message "ERROR" "Dependency check failed"
+        unlock_instance
         exit 1
     fi
 
@@ -401,12 +414,6 @@ main(){
     if ! try_to_load_config "$CONFIG_FILE"; then
         log_message "INFO" "Falling back to default configuration"
         load_default_config
-    fi
-
-    # Acquire lock to ensure single instance
-    if ! lock_instance; then
-        log_message "ERROR" "Failed to acquire lock, another instance may be running"
-        exit 1
     fi
 
     # Setup trap to cleanup on exit
