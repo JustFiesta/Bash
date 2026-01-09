@@ -140,8 +140,18 @@ try_to_load_config(){
 }
 
 load_default_config(){
-    # TODO: implement default config loading logic
-    true
+    log_message "INFO" "Loading default configuration"
+
+    SOURCE_DIR="${SOURCE_DIR:-/var/data}"
+    DEST_DIR="${DEST_DIR:-/var/backups}"
+    RETENTION_DAYS="${RETENTION_DAYS:-7}"
+    LOG_FILE="${LOG_FILE:-/var/log/backup.log}"
+    EMAIL_TO_ALERT="${EMAIL_TO_ALERT:-}"
+
+    log_message "DEBUG" "Default config: SOURCE_DIR=$SOURCE_DIR, DEST_DIR=$DEST_DIR, RETENTION_DAYS=$RETENTION_DAYS"
+    log_message "INFO" "Default configuration loaded"
+
+    return 0
 }
 
 send_mail_alert() {
