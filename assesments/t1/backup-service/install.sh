@@ -12,11 +12,13 @@ NC='\033[0m'
 
 # Paths
 SCRIPT_NAME="backup-tool.sh"
+SERVICE_NAME="backup-tool.service"
 INSTALL_DIR="/usr/local/bin"
 CONFIG_DIR="/etc/backup-tool"
 LOG_DIR="/var/log/backup-tool"
 BACKUP_DIR="/var/backup-tool/archives"
 CRON_FILE="/etc/cron.d/backup-tool"
+SERVICE_FILE="/etc/systemd/system/backup-tool.service"
 
 echo -e "${GREEN}================================${NC}"
 echo -e "${GREEN}  Backup Tool Installer${NC}"
@@ -30,19 +32,24 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-# Check if backup.sh exists
+# Check if required files exist
 if [[ ! -f "backup.sh" ]]; then
     echo -e "${RED}Error: backup.sh not found${NC}"
     exit 1
 fi
 
-echo -e "${YELLOW}[1/5] Installing script...${NC}"
+if [[ ! -f "$SERVICE_NAME" ]]; then
+    echo -e "${RED}Error: $SERVICE_NAME not found${NC}"
+    exit 1
+fi
+
+echo -e "${YELLOW}[1/6] Installing script...${NC}"
 cp backup.sh "$INSTALL_DIR/$SCRIPT_NAME"
 chmod +x "$INSTALL_DIR/$SCRIPT_NAME"
 echo -e "${GREEN} Installed to $INSTALL_DIR/$SCRIPT_NAME${NC}"
 
 echo ""
-echo -e "${YELLOW}[2/5] Creating directories...${NC}"
+echo -e "${YELLOW}[2/6] Creating directories...${NC}"
 mkdir -p "$CONFIG_DIR"
 mkdir -p "$LOG_DIR"
 mkdir -p "$BACKUP_DIR"
@@ -52,13 +59,13 @@ echo "  $LOG_DIR"
 echo "  $BACKUP_DIR"
 
 echo ""
-echo -e "${YELLOW}[3/5] Creating configuration file...${NC}"
+echo -e "${YELLOW}[3/6] Creating configuration file...${NC}"
 if [[ -f "$CONFIG_DIR/backup.conf" ]]; then
     echo -e "${YELLOW}! Config exists, backing up...${NC}"
     cp "$CONFIG_DIR/backup.conf" "$CONFIG_DIR/backup.conf.bak.$(date +%Y%m%d_%H%M%S)"
 fi
 
-cat > "$CONFIG_DIR/backup.conf" << 'CONF'
+cat > "$CONFIG_DIR/backup.conf" << EOF
 # Backup Tool Configuration
 
 # Source directory to backup (CHANGE THIS!)
@@ -74,26 +81,33 @@ RETENTION_DAYS=7
 LOG_FILE=/var/log/backup-tool/backup.log
 
 # Email for notifications (leave empty to disable)
-EMAIL_TO_ALERT=
+EMAIL_TO_ALERT=""
 
 # Lock file path
-LOCK_FILE=/var/run/backup-tool.lock
-CONF
+LOCK_FILE="/var/run/backup-tool.lock"
+EOF
 
 echo -e "${GREEN} Config created: $CONFIG_DIR/backup.conf${NC}"
 
 echo ""
-echo -e "${YELLOW}[4/5] Setting up cron job...${NC}"
+echo -e "${YELLOW}[4/6] Installing systemd service...${NC}"
+cp "$SERVICE_NAME" "$SERVICE_FILE"
+chmod 644 "$SERVICE_FILE"
+systemctl daemon-reload
+echo -e "${GREEN} Service installed ${NC}"
+
+echo ""
+echo -e "${YELLOW}[5/6] Setting up cron job...${NC}"
 cat > "$CRON_FILE" << 'CRON'
 # Backup Tool - Daily at midnight
-0 0 * * * root /usr/local/bin/backup-tool.sh -c /etc/backup-tool/backup.conf >> /var/log/backup-tool/cron.log 2>&1
+0 0 * * * root systemctl start backup-tool.service
 CRON
 
 chmod 644 "$CRON_FILE"
 echo -e "${GREEN} Cron job installed (daily at 00:00)${NC}"
 
 echo ""
-echo -e "${YELLOW}[5/5] Checking dependencies...${NC}"
+echo -e "${YELLOW}[6/6] Checking dependencies...${NC}"
 missing=()
 for cmd in tar date find basename dirname du mkdir mv rm; do
     if ! command -v "$cmd" &>/dev/null; then

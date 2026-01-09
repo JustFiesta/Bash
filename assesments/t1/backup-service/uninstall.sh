@@ -16,6 +16,7 @@ CONFIG_DIR="/etc/backup-tool"
 LOG_DIR="/var/log/backup-tool"
 BACKUP_DIR="/var/backup-tool"
 CRON_FILE="/etc/cron.d/backup-tool"
+SERVICE_FILE="/etc/systemd/system/backup-tool.service"
 LOCK_FILE="/var/run/backup-tool.lock"
 
 echo -e "${RED}================================${NC}"
@@ -39,7 +40,7 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 echo ""
-echo -e "${YELLOW}[1/4] Removing script...${NC}"
+echo -e "${YELLOW}[1/5] Removing script...${NC}"
 if [[ -f "$INSTALL_DIR/$SCRIPT_NAME" ]]; then
     rm -f "$INSTALL_DIR/$SCRIPT_NAME"
     echo -e "${GREEN} Removed $INSTALL_DIR/$SCRIPT_NAME${NC}"
@@ -48,7 +49,21 @@ else
 fi
 
 echo ""
-echo -e "${YELLOW}[2/4] Removing cron job...${NC}"
+echo -e "${YELLOW}[2/5] Stopping and removing systemd service...${NC}"
+if systemctl is-active --quiet backup-tool.service; then
+    systemctl stop backup-tool.service
+    echo -e "${GREEN} Service stopped${NC}"
+fi
+if [[ -f "$SERVICE_FILE" ]]; then
+    rm -f "$SERVICE_FILE"
+    systemctl daemon-reload
+    echo -e "${GREEN} Service removed${NC}"
+else
+    echo -e "${YELLOW}! Service file not found${NC}"
+fi
+
+echo ""
+echo -e "${YELLOW}[3/5] Removing cron job...${NC}"
 if [[ -f "$CRON_FILE" ]]; then
     rm -f "$CRON_FILE"
     echo -e "${GREEN} Removed cron job${NC}"
@@ -57,7 +72,7 @@ else
 fi
 
 echo ""
-echo -e "${YELLOW}[3/4] Removing lock file...${NC}"
+echo -e "${YELLOW}[4/5] Removing lock file...${NC}"
 if [[ -f "$LOCK_FILE" ]]; then
     rm -f "$LOCK_FILE"
     echo -e "${GREEN} Removed lock file${NC}"
@@ -66,7 +81,7 @@ else
 fi
 
 echo ""
-echo -e "${YELLOW}[4/4] Remove data? (config/logs/backups)${NC}"
+echo -e "${YELLOW}[5/5] Remove data? (config/logs/backups)${NC}"
 echo -e "${RED}WARNING: This deletes:${NC}"
 echo "  $CONFIG_DIR"
 echo "  $LOG_DIR"
