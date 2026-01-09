@@ -327,8 +327,81 @@ kill_instance(){
 
 # runtime
 main(){
-    # TODO: implement main function with getopts parsing
-    true
+    # Parse command line options
+    while getopts "c:v:h" opt; do
+        case "$opt" in
+            c)
+                CONFIG_FILE="$OPTARG"
+                ;;
+            v)
+                set_verbosity "$OPTARG"
+                ;;
+            h)
+                usage
+                ;;
+            \?)
+                echo "Invalid option: -$OPTARG" >&2
+                usage
+                ;;
+            :)
+                echo "Option -$OPTARG requires an argument" >&2
+                usage
+                ;;
+        esac
+    done
+
+    log_message "INFO" "Backup service starting"
+
+    # Try to load config, fallback to defaults if needed
+    if ! try_to_load_config "$CONFIG_FILE"; then
+        log_message "INFO" "Falling back to default configuration"
+        load_default_config
+    fi
+
+    # Acquire lock to ensure single instance
+    if ! lock_instance; then
+        log_message "ERROR" "Failed to acquire lock, another instance may be running"
+        exit 1
+    fi
+
+    # Setup trap to cleanup on exit
+    trap 'kill_instance' EXIT INT TERM
+
+    # Create backup
+    local backup_file
+    backup_file=$(create_backup)
+    if [[ $? -ne 0 ]] || [[ -z "$backup_file" ]]; then
+        log_message "ERROR" "Backup creation failed"
+        if [[ -n "$EMAIL_TO_ALERT" ]]; then
+            send_mail_alert "Backup Failed" "Backup creation failed. Check logs at $LOG_FILE"
+        fi
+        kill_instance 1
+    fi
+
+    # Move backup to destination
+    if ! move_backup_to_destination "$backup_file"; then
+        log_message "ERROR" "Failed to move backup to destination"
+        if [[ -n "$EMAIL_TO_ALERT" ]]; then
+            send_mail_alert "Backup Failed" "Failed to move backup to destination. Check logs at $LOG_FILE"
+        fi
+        kill_instance 1
+    fi
+
+    # Remove old backups
+    if ! remove_backups_older_than "$RETENTION_DAYS"; then
+        log_message "ERROR" "Failed to remove old backups"
+        # Non-fatal, continue
+    fi
+
+    log_message "INFO" "Backup completed successfully"
+
+    # Send success notification
+    if [[ -n "$EMAIL_TO_ALERT" ]]; then
+        send_mail_alert "Backup Successful" "Backup completed successfully. Check logs at $LOG_FILE"
+    fi
+
+    unlock_instance
+    exit 0
 }
 
 main "$@"
