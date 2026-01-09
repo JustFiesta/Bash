@@ -163,7 +163,6 @@ move_backup_to_destination(){
     return 0
 }
 
-
 remove_backups_older_than(){
     local retention_days="$1"
 
@@ -290,7 +289,7 @@ load_default_config(){
     log_message "INFO" "Loading default configuration"
 
     SOURCE_DIR="${SOURCE_DIR:-/var/data}"
-    DEST_DIR="${DEST_DIR:-/var/backups}"
+    DEST_DIR="${DEST_DIR:-/var/backup-tool/archives}"
     RETENTION_DAYS="${RETENTION_DAYS:-7}"
     LOG_FILE="${LOG_FILE:-/var/log/backup-tool/backup.log}"
     EMAIL_TO_ALERT="${EMAIL_TO_ALERT:-}"
@@ -304,7 +303,23 @@ load_default_config(){
 send_mail_alert() {
     local subject="$1"
     local body="$2"
-    echo "$body" | mail -s "$subject" "$EMAIL_TO_ALERT"
+
+    if [[ -z "$EMAIL_TO_ALERT" ]]; then
+        log_message "DEBUG" "Email notification skipped: EMAIL_TO_ALERT not set"
+        return 0
+    fi
+
+    echo "$body" | mail -s "$subject" "$EMAIL_TO_ALERT" 2>&1 | while IFS= read -r line; do
+        log_message "DEBUG" "mail: $line"
+    done
+
+    if [[ ${PIPESTATUS[0]} -eq 0 ]]; then
+        log_message "INFO" "Email sent successfully to: $EMAIL_TO_ALERT"
+        return 0
+    else
+        log_message "ERROR" "Failed to send email to: $EMAIL_TO_ALERT"
+        return 1
+    fi
 }
 
 lock_instance(){
